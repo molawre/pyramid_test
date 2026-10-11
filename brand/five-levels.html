@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The 5 levels of healing — system model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Brand headline face is Kalice (commercial). Newsreader Light is the stand-in when Kalice is not installed. -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #023866;
+    --teal: #1E9DA1;
+    --gray: #F1F4F4;
+    --gold: #F79B09;
+    --charcoal: #2B2A29;
+
+    --bg: var(--gray);
+    --ink: var(--navy);
+    --muted: #5E6F7E;
+    --rule: rgba(2, 56, 102, 0.18);
+    --num: var(--teal);
+  }
+  body.navy {
+    --bg: var(--navy);
+    --ink: #FFFFFF;
+    --muted: #A9C4D6;
+    --rule: rgba(255, 255, 255, 0.22);
+    --num: #6FD0D3;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "DM Sans", system-ui, sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+  body.navy::before {
+    /* Soft atmosphere from the signature gradient: navy top, light blue haze, gold at the base. */
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(120% 60% at 30% 118%, rgba(247, 155, 9, 0.30), rgba(247, 155, 9, 0) 60%),
+      radial-gradient(90% 50% at 40% 70%, rgba(130, 185, 215, 0.22), rgba(130, 185, 215, 0) 70%);
+  }
+
+  .eyebrow, .axis-label, .footer, .bracket-label {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .eyebrow { position: absolute; left: 120px; top: 96px; color: var(--ink); }
+  h1 {
+    position: absolute; left: 120px; top: 126px;
+    font-family: "Kalice", "Newsreader", Georgia, serif;
+    font-weight: 300;
+    font-size: 72px;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+  h1 b { font-weight: 400; }
+
+  .labels { position: absolute; left: 1180px; top: 0; width: 470px; }
+  .label { position: absolute; left: 0; width: 470px; transform: translateY(-22px); }
+  .label .head { display: flex; align-items: baseline; gap: 18px; }
+  .label .num { font-weight: 500; font-size: 18px; color: var(--num); letter-spacing: 0.04em; width: 26px; }
+  .label .name { font-weight: 700; font-size: 26px; color: var(--ink); }
+  .label .code { font-size: 14px; font-weight: 500; letter-spacing: 0.1em; color: var(--muted); }
+  .label p { margin: 8px 0 0 44px; font-size: 18px; line-height: 1.45; color: var(--muted); max-width: 420px; }
+
+  .bracket-label { fill: var(--muted); font-family: "DM Sans", sans-serif; font-size: 14px; }
+
+  .footer {
+    position: absolute; left: 120px; right: 120px; bottom: 44px;
+    display: flex; justify-content: space-between;
+    color: var(--muted); font-size: 13px;
+    border-top: 1px solid var(--rule); padding-top: 18px;
+  }
+  svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+  <svg id="art" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+
+  <div class="eyebrow">System model</div>
+  <h1>The 5 levels of <b>healing</b></h1>
+
+  <div class="labels" id="labels"></div>
+
+  <div class="footer">
+    <span>Five levels model · Dietrich Klinghardt, M.D., Ph.D.</span>
+    <span>Emotional body = levels 1–3 · Soul = levels 2–4</span>
+  </div>
+
+<script>
+const navy = new URLSearchParams(location.search).get("theme") === "navy";
+if (navy) document.body.classList.add("navy");
+
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("art");
+const el = (tag, attrs, parent = svg) => {
+  const n = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  parent.appendChild(n);
+  return n;
+};
+
+// Isometric plate geometry
+const CX = 700, W = 200, H = 115, GAP = 112, BASE = 800;
+const levels = [
+  { n: "01", name: "Physical body",       code: "1 PB", t: 40,
+    text: "The densest level, governed by mechanics, chemistry and physics." },
+  { n: "02", name: "Energy body",         code: "2 EB", t: 16,
+    text: "The link between mind and body — the level of biophysics." },
+  { n: "03", name: "Mental body",         code: "3 MB", t: 14,
+    text: "The information carrier: stores memories and interprets perceptions." },
+  { n: "04", name: "Intuitive body",      code: "4 IB", t: 12,
+    text: "Sensed beyond language and analysis; shaped by family history and transpersonal forces." },
+  { n: "05", name: "Spiritual dimension", code: "5 SB", t: 0,
+    text: "The innermost core of the self." },
+];
+
+// Plate styles per theme: [top, left side, right side, stroke, top opacity]
+const light = [
+  ["#0B4C82", "#023866", "#012748", "#023866", 1],
+  ["#2C7FA6", "#16608A", "#0E4C70", "#16608A", 0.82],
+  ["#1E9DA1", "#178184", "#126A6C", "#178184", 0.55],
+  ["#B9DCEA", "#9CC9DB", "#86B9CE", "#7DB2C8", 0.6],
+  ["#FFFFFF", "none", "none", "#6FA8C2", 0.35],
+];
+const dark = [
+  ["#F1F4F4", "#D5DEE3", "#B9C7CF", "#F1F4F4", 1],
+  ["#DDEBF1", "#BFD6E1", "#A4C2D0", "#DDEBF1", 0.72],
+  ["#1E9DA1", "#178184", "#126A6C", "#5FC4C7", 0.6],
+  ["#9CCBE0", "#86B9CE", "#6FA6BE", "#A9D6EA", 0.35],
+  ["#FFFFFF", "none", "none", "#CFE6F1", 0.12],
+];
+const styles = navy ? dark : light;
+
+const defs = el("defs", {});
+// Soft drop shadow under the base plate
+const blur = el("filter", { id: "soft", x: "-50%", y: "-50%", width: "200%", height: "200%" }, defs);
+el("feGaussianBlur", { stdDeviation: 18 }, blur);
+
+const pts = a => a.map(p => p.join(",")).join(" ");
+
+// Faint construction grid behind the stack
+const gridColor = navy ? "rgba(255,255,255,0.06)" : "rgba(2,56,102,0.06)";
+for (let i = -6; i <= 6; i++) {
+  const x = CX + i * 90;
+  el("line", { x1: x, y1: 270, x2: x, y2: 960, stroke: gridColor, "stroke-width": 1 });
+}
+
+// Shadow
+el("ellipse", { cx: CX, cy: BASE + H + 62, rx: W * 0.9, ry: 22,
+  fill: navy ? "rgba(0,0,0,0.35)" : "rgba(2,56,102,0.18)", filter: "url(#soft)" });
+
+// Vertical axis (objective → subjective)
+const axisX = 170, axisTop = BASE - 4 * GAP - 40, axisBot = BASE + 60;
+const axisColor = navy ? "rgba(255,255,255,0.75)" : "#023866";
+el("line", { x1: axisX, y1: axisBot, x2: axisX, y2: axisTop + 10, stroke: axisColor, "stroke-width": 1.5 });
+el("path", { d: `M${axisX - 6},${axisTop + 16} L${axisX},${axisTop} L${axisX + 6},${axisTop + 16}`,
+  fill: "none", stroke: axisColor, "stroke-width": 1.5 });
+levels.forEach((_, i) => {
+  const y = BASE - i * GAP;
+  el("line", { x1: axisX - 8, y1: y, x2: axisX + 8, y2: y, stroke: axisColor, "stroke-width": 1.5 });
+});
+const axisText = (txt, y) => {
+  const t = el("text", { x: axisX, y, "text-anchor": "middle", class: "bracket-label",
+    style: `fill:${navy ? "#FFFFFF" : "#023866"}; font-weight:500` });
+  t.textContent = txt;
+};
+axisText("SUBJECTIVE", axisTop - 22);
+axisText("OBJECTIVE", axisBot + 36);
+
+// Plates, bottom to top so upper plates sit in front
+levels.forEach((lv, i) => {
+  const cy = BASE - i * GAP;
+  const [top, left, right, stroke, op] = styles[i];
+  const g = el("g", {});
+  const T = [CX, cy - H], R = [CX + W, cy], B = [CX, cy + H], L = [CX - W, cy];
+  if (lv.t > 0) {
+    el("polygon", { points: pts([L, B, [B[0], B[1] + lv.t], [L[0], L[1] + lv.t]]), fill: left, "fill-opacity": Math.min(1, op + 0.15) }, g);
+    el("polygon", { points: pts([B, R, [R[0], R[1] + lv.t], [B[0], B[1] + lv.t]]), fill: right, "fill-opacity": Math.min(1, op + 0.15) }, g);
+  }
+  el("polygon", { points: pts([T, R, B, L]), fill: top, "fill-opacity": op, stroke, "stroke-width": 1.2, "stroke-opacity": 0.9 }, g);
+
+  if (i === 4) {
+    // Top level as a fine wireframe grid
+    const n = 10;
+    for (let k = 1; k < n; k++) {
+      const f = k / n;
+      const a = [L[0] + (T[0] - L[0]) * f, L[1] + (T[1] - L[1]) * f];
+      const b = [B[0] + (R[0] - B[0]) * f, B[1] + (R[1] - B[1]) * f];
+      el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke, "stroke-width": 0.8, "stroke-opacity": 0.7 }, g);
+      const c = [L[0] + (B[0] - L[0]) * f, L[1] + (B[1] - L[1]) * f];
+      const d = [T[0] + (R[0] - T[0]) * f, T[1] + (R[1] - T[1]) * f];
+      el("line", { x1: c[0], y1: c[1], x2: d[0], y2: d[1], stroke, "stroke-width": 0.8, "stroke-opacity": 0.7 }, g);
+    }
+  }
+
+  // Leader line from the right corner to the label column
+  const lineColor = navy ? "rgba(255,255,255,0.55)" : "rgba(2,56,102,0.45)";
+  el("line", { x1: R[0] + 6, y1: cy, x2: 1150, y2: cy, stroke: lineColor, "stroke-width": 1 });
+  el("circle", { cx: R[0], cy, r: 5, fill: "#F79B09" });
+
+  // Label
+  const div = document.createElement("div");
+  div.className = "label";
+  div.style.top = cy + "px";
+  div.innerHTML = `<div class="head"><span class="num">${lv.n}</span><span class="name">${lv.name}</span><span class="code">${lv.code}</span></div><p>${lv.text}</p>`;
+  document.getElementById("labels").appendChild(div);
+});
+
+// Composite brackets: Emotional body = 1–3, Soul = 2–4
+const bracket = (x, from, to, label) => {
+  const y1 = BASE - (to - 1) * GAP - 26, y2 = BASE - (from - 1) * GAP + 26;
+  const c = navy ? "rgba(255,255,255,0.6)" : "rgba(2,56,102,0.5)";
+  el("path", { d: `M${x - 10},${y1} L${x},${y1} L${x},${y2} L${x - 10},${y2}`, fill: "none", stroke: c, "stroke-width": 1.2 });
+  const t = el("text", { x: x + 26, y: (y1 + y2) / 2, "text-anchor": "middle", class: "bracket-label",
+    transform: `rotate(90 ${x + 26} ${(y1 + y2) / 2})` });
+  t.textContent = label;
+};
+bracket(1700, 1, 3, "Emotional body");
+bracket(1770, 2, 4, "Soul");
+</script>
+</body>
+</html>
