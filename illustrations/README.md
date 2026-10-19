@@ -21,3 +21,16 @@ Full prompts are stored with each generation in the Higgsfield history.
 Job IDs: 3051ce74-7dc6-4720-a439-076e6b99c0eb, 8f717bb1-75a1-41e6-81db-69d1d818b80e,
 109cd5d7-dcee-4f30-b5b4-8e6cba62714a, ff1aef34-e04c-403f-9a62-dc4c49adc318,
 8954ff3f-c2d8-4a3a-9eb0-c9f56afd9eda.
+
+## Same five briefs in Nano Banana Pro
+
+Requested as `nano_banana_pro` (2k, 16:9) at 2 credits per image. Higgsfield records these jobs
+under the internal id `nano_banana_2`. Output is 2752×1536.
+
+| # | Concept | Image |
+|---|---------|-------|
+| 1 | Two bodies, side by side | [open](https://d8j0ntlcm91z4.cloudfront.net/user_39D7phR4MuxTbEsdhjSEEZJYoIi/hf_20261019_192921_3bf36d28-e854-4712-a47b-76305d8b2060.png) |
+| 2 | Heart close-up, split frame | [open](https://d8j0ntlcm91z4.cloudfront.net/user_39D7phR4MuxTbEsdhjSEEZJYoIi/hf_20261019_192921_473583ea-d767-497f-99b1-7e5ed7f4436a.png) |
+| 3 | Photon-count figure | [open](https://d8j0ntlcm91z4.cloudfront.net/user_39D7phR4MuxTbEsdhjSEEZJYoIi/hf_20261019_192921_d4d5580a-2328-411a-9a0c-0301cbbc0141.png) |
+| 4 | Body in thin slices | [open](https://d8j0ntlcm91z4.cloudfront.net/user_39D7phR4MuxTbEsdhjSEEZJYoIi/hf_20261019_192921_e34d9866-7a7d-4edb-a44b-f14292bcf6bb.png) |
+| 5 | Three hearts, progression | [open](https://d8j0ntlcm91z4.cloudfront.net/user_39D7phR4MuxTbEsdhjSEEZJYoIi/hf_20261019_192921_984757ed-387a-467e-bced-814aa9728e9f.png) |
