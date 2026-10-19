@@ -19,7 +19,7 @@ var LAYOUT = /*__LAYOUT__*/;
 var USE_KALICE = true;
 
 var S = 2;                       // layout is in 1920x1080 units, comp is 3840x2160
-var COMP_NAME = "The 5 levels of healing — System model";
+var COMP_NAME = LAYOUT.compName || "The 5 levels of healing — system model";
 var FPS = 30;
 var DURATION = 10;
 
@@ -245,17 +245,24 @@ solids.parentFolder = folder;
 
 var comp = proj.items.addComp(COMP_NAME, LAYOUT.width * S, LAYOUT.height * S, 1, DURATION, FPS);
 comp.parentFolder = folder;
-comp.bgColor = NAVY;
+var BG = LAYOUT.bg || NAVY;
+comp.bgColor = BG;
 
 var serif = resolveSerif(comp);
 report.push("Headline: " + serif.light + " / " + serif.highlight);
 var sansUsed = {};
 
 // Background + atmosphere (matches body.navy::before)
-var bg = comp.layers.addSolid(NAVY, "Background — Navy #023866", comp.width, comp.height, 1, comp.duration);
+var bg = comp.layers.addSolid(BG, "Background — Navy #023866", comp.width, comp.height, 1, comp.duration);
 bg.source.parentFolder = solids;
-addGlow(comp, solids, "Atmosphere — sky haze", HAZE, 0.22, [768, 756], [1728 * 0.7, 540 * 0.7]);
-addGlow(comp, solids, "Atmosphere — gold base", GOLD, 0.30, [576, 1274.4], [2304 * 0.6, 648 * 0.6]);
+// Glows in paint order (first = lowest). Defaults reproduce the System model slide.
+var GLOWS = LAYOUT.glows && LAYOUT.glows.length ? LAYOUT.glows : [
+    { name: "Atmosphere — sky haze", color: HAZE, alpha: 0.22, center: [768, 756], radius: [1728 * 0.7, 540 * 0.7] },
+    { name: "Atmosphere — gold base", color: GOLD, alpha: 0.30, center: [576, 1274.4], radius: [2304 * 0.6, 648 * 0.6] }
+];
+for (var gi = 0; gi < GLOWS.length; gi++) {
+    addGlow(comp, solids, GLOWS[gi].name, GLOWS[gi].color, GLOWS[gi].alpha, GLOWS[gi].center, GLOWS[gi].radius);
+}
 
 function sansOpts(r) {
     var f = resolveFont(comp, sansCandidates(r.fontSize, r.weight));
@@ -348,7 +355,7 @@ for (i = 0; i < LAYOUT.html.length; i++) {
 
 // Reference image as a hidden guide layer, for checking the rebuild against the approved PNG
 try {
-    var refFile = new File(File($.fileName).parent.fsName + "/five-levels-navy-reference.png");
+    var refFile = new File(File($.fileName).parent.fsName + "/" + (LAYOUT.referenceFile || "five-levels-navy-reference.png"));
     if (refFile.exists) {
         var refItem = proj.importFile(new ImportOptions(refFile));
         refItem.parentFolder = folder;

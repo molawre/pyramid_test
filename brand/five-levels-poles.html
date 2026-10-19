@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The 5 levels of healing — polarity model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Brand headline face is Kalice (commercial). Newsreader Light is the stand-in when Kalice is not installed. -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #023866;
+    --ink: #FFFFFF;
+    --muted: #A9C4D6;
+    --dim: #6F8BA3;
+    --rule: rgba(255, 255, 255, 0.22);
+    --num: #6FD0D3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; }
+  body {
+    background: var(--navy);
+    color: var(--ink);
+    font-family: "DM Sans", system-ui, sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+  #atmo { position: absolute; inset: 0; }
+
+  .eyebrow, .footer {
+    font-size: 15px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .eyebrow { position: absolute; left: 120px; top: 96px; }
+  h1 {
+    position: absolute; left: 120px; top: 126px;
+    font-family: "Kalice", "Newsreader", Georgia, serif;
+    font-weight: 300; font-size: 72px; line-height: 1.05; letter-spacing: -0.015em;
+  }
+  h1 b { font-weight: 400; }
+
+  .label { position: absolute; transform: translateY(-22px); white-space: nowrap; }
+  .label .head { display: flex; align-items: baseline; gap: 18px; }
+  .label .num { font-weight: 500; font-size: 18px; color: var(--num); letter-spacing: 0.04em; width: 26px; }
+  .label .name { font-weight: 700; font-size: 26px; color: var(--ink); }
+  .label .code { font-size: 14px; font-weight: 500; letter-spacing: 0.1em; color: var(--muted); }
+  .label p { margin: 8px 0 0 44px; font-size: 18px; line-height: 1.45; color: var(--muted); }
+  .north { left: 1250px; }
+  /* Shadow pole: mirrored, right-aligned to the left of the stack, quieter */
+  .south { right: calc(1920px - 640px); transform: translateY(-14px); }
+  .south .head { justify-content: flex-end; }
+  .south .num { color: var(--dim); text-align: right; }
+  .south .name { font-weight: 500; font-size: 22px; color: var(--muted); }
+  .south .code { color: var(--dim); }
+
+  .axis-label { font-size: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+
+  .footer {
+    position: absolute; left: 120px; right: 120px; bottom: 44px;
+    display: flex; justify-content: space-between;
+    color: var(--muted); font-size: 13px;
+    border-top: 1px solid var(--rule); padding-top: 18px;
+  }
+  svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+  <svg id="atmo" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+  <svg id="art" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
+
+  <div class="eyebrow" data-block="Eyebrow">Polarity model</div>
+  <h1 data-block="Headline">The 5 levels of <b>healing</b></h1>
+  <div id="labels"></div>
+
+  <div class="footer">
+    <span data-block="Footer left">Polarity model · Dietrich Klinghardt, M.D., Ph.D.</span>
+    <span data-block="Footer right">Emotional body = levels 1–3 · Soul = levels 2–4</span>
+  </div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("art");
+const el = (tag, attrs, parent = svg) => {
+  const n = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  parent.appendChild(n);
+  return n;
+};
+const pts = a => a.map(p => p.join(",")).join(" ");
+
+// Atmosphere: bright sky over the north pole, deeper shadow under the south pole.
+// Each glow = CSS-style radial gradient (color at alpha a in the center, transparent at the radius).
+// The AE script rebuilds the same glows from this list.
+window.GLOWS = [
+  { name: "Atmosphere — south shadow", color: [1, 22, 44],    alpha: 0.85, center: [960, 1010], radius: [1250, 520] },
+  { name: "Atmosphere — sky haze",     color: [130, 185, 215], alpha: 0.20, center: [960, 300],  radius: [1100, 560] },
+  { name: "Atmosphere — north light",  color: [224, 240, 247], alpha: 0.28, center: [960, 150],  radius: [520, 300] },
+];
+{
+  const atmo = document.getElementById("atmo");
+  const defs = el("defs", {}, atmo);
+  GLOWS.forEach((g, i) => {
+    const rg = el("radialGradient", { id: "atmo" + i, gradientUnits: "userSpaceOnUse", cx: g.center[0], cy: g.center[1], r: g.radius[0],
+      gradientTransform: `translate(${g.center[0]} ${g.center[1]}) scale(1 ${g.radius[1] / g.radius[0]}) translate(${-g.center[0]} ${-g.center[1]})` }, defs);
+    el("stop", { offset: 0, "stop-color": `rgb(${g.color})`, "stop-opacity": g.alpha }, rg);
+    el("stop", { offset: 1, "stop-color": `rgb(${g.color})`, "stop-opacity": 0 }, rg);
+    el("rect", { x: 0, y: 0, width: 1920, height: 1080, fill: `url(#atmo${i})` }, atmo);
+  });
+}
+
+// Bipyramid geometry: level 1 is the shared, widest middle layer; levels 2–5 narrow
+// toward the north (light) and mirror toward the south (shadow).
+const CX = 960, CY = 575, W1 = 230, SHRINK = 0.8, RATIO = 0.575;
+// Distance of each level from the physical layer (a little more room right next to it)
+const OFFSET = [0, 100, 180, 258, 336];
+const levels = [
+  { n: "01", name: "Physical body",       code: "1 PB", t: 0, text: "Mechanics, chemistry and physics." },
+  { n: "02", name: "Energy body",         code: "2 EB", t: 14, text: "The link between mind and body: biophysics." },
+  { n: "03", name: "Mental body",         code: "3 MB", t: 12, text: "The information carrier: memory and perception." },
+  { n: "04", name: "Intuitive body",      code: "4 IB", t: 10, text: "Beyond language and analysis." },
+  { n: "05", name: "Spiritual dimension", code: "5 SB", t: 0,  text: "The innermost core of the self." },
+];
+const north = [
+  null,
+  ["#DDEBF1", "#BFD6E1", "#A4C2D0", "#EAF4F8", 0.74],
+  ["#1E9DA1", "#178184", "#126A6C", "#7FD6D8", 0.62],
+  ["#9CCBE0", "#86B9CE", "#6FA6BE", "#CFE9F4", 0.40],
+  ["#FFFFFF", "none",    "none",    "#F1F8FB", 0.16],
+];
+const south = [
+  null,
+  ["#33566F", "#284659", "#1E3747", "#4F7590", 0.70],
+  ["#0F4E5A", "#0B3D47", "#082E36", "#2E6F78", 0.62],
+  ["#0E2C47", "#0A2238", "#07192A", "#355876", 0.55],
+  ["#08203A", "none",    "none",    "#3F5F7C", 0.30],
+];
+const core = ["#F1F4F4", "#D5DEE3", "#B9C7CF", "#F1F4F4", 1];
+
+const gridColor = "rgba(255,255,255,0.05)";
+for (let i = -7; i <= 7; i++) {
+  const x = CX + i * 90;
+  el("line", { x1: x, y1: 250, x2: x, y2: 960, stroke: gridColor, "stroke-width": 1, "data-name": "Grid " + String(i + 8).padStart(2, "0") });
+}
+
+// Axis: shadow (south) at the bottom, light (north) at the top, objective in the middle
+const axisX = 170, axisTop = 250, axisBot = 930, axisColor = "rgba(255,255,255,0.75)";
+el("line", { x1: axisX, y1: axisBot - 10, x2: axisX, y2: axisTop + 10, stroke: axisColor, "stroke-width": 1.5, "data-name": "Axis line" });
+el("path", { d: `M${axisX - 6},${axisTop + 16} L${axisX},${axisTop} L${axisX + 6},${axisTop + 16}`, fill: "none", stroke: axisColor, "stroke-width": 1.5, "data-name": "Axis arrow north" });
+el("path", { d: `M${axisX - 6},${axisBot - 16} L${axisX},${axisBot} L${axisX + 6},${axisBot - 16}`, fill: "none", stroke: axisColor, "stroke-width": 1.5, "data-name": "Axis arrow south" });
+el("line", { x1: axisX - 10, y1: CY, x2: axisX + 10, y2: CY, stroke: axisColor, "stroke-width": 1.5, "data-name": "Axis tick objective" });
+const axisText = (txt, x, y, anchor, fill, name) => {
+  const t = el("text", { x, y, "text-anchor": anchor, class: "axis-label", fill, "font-family": "DM Sans", "data-name": name });
+  t.textContent = txt;
+};
+axisText("Light", axisX, axisTop - 22, "middle", "#FFFFFF", "Label LIGHT");
+axisText("Shadow", axisX, axisBot + 36, "middle", "#6F8BA3", "Label SHADOW");
+axisText("Objective", axisX + 22, CY + 5, "start", "#A9C4D6", "Label OBJECTIVE");
+
+// Plates
+// The south half is a mirror image of the north half across the physical layer,
+// so each pair is painted together, moving outward from the core.
+const order = [{ k: 1, pole: "core" }];
+for (let k = 2; k <= 5; k++) order.push({ k, pole: "north" }, { k, pole: "south" });
+
+order.forEach(({ k, pole }) => {
+  const lv = levels[k - 1];
+  const W = W1 * Math.pow(SHRINK, k - 1), H = W * RATIO;
+  const cy = pole === "south" ? CY + OFFSET[k - 1] : CY - OFFSET[k - 1];
+  const [top, left, right, stroke, op] = pole === "core" ? core : (pole === "north" ? north : south)[k - 1];
+  const tag = pole === "core" ? "01 Physical body" : `${lv.n} ${lv.name} — ${pole}`;
+  const g = el("g", { "data-name": "Plate " + tag });
+  const T = [CX, cy - H], R = [CX + W, cy], B = [CX, cy + H], L = [CX - W, cy];
+  if (lv.t > 0) {
+    // North plates show their edge below the face; the mirrored south plates show it above
+    const E = pole === "south" ? T : B, d = pole === "south" ? -lv.t : lv.t;
+    el("polygon", { points: pts([L, E, [E[0], E[1] + d], [L[0], L[1] + d]]), fill: left, "fill-opacity": Math.min(1, op + 0.15), "data-name": "Left side" }, g);
+    el("polygon", { points: pts([E, R, [R[0], R[1] + d], [E[0], E[1] + d]]), fill: right, "fill-opacity": Math.min(1, op + 0.15), "data-name": "Right side" }, g);
+  }
+  el("polygon", { points: pts([T, R, B, L]), fill: top, "fill-opacity": op, stroke, "stroke-width": 1.2, "stroke-opacity": 0.9, "data-name": "Top face" }, g);
+  if (k === 5) {
+    const n = 8;
+    for (let i = 1; i < n; i++) {
+      const f = i / n;
+      const a = [L[0] + (T[0] - L[0]) * f, L[1] + (T[1] - L[1]) * f], b = [B[0] + (R[0] - B[0]) * f, B[1] + (R[1] - B[1]) * f];
+      el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke, "stroke-width": 0.8, "stroke-opacity": 0.7 }, g);
+      const c = [L[0] + (B[0] - L[0]) * f, L[1] + (B[1] - L[1]) * f], d = [T[0] + (R[0] - T[0]) * f, T[1] + (R[1] - T[1]) * f];
+      el("line", { x1: c[0], y1: c[1], x2: d[0], y2: d[1], stroke, "stroke-width": 0.8, "stroke-opacity": 0.7 }, g);
+    }
+  }
+
+  // Leaders: north and core to the right, south to the left
+  const toRight = pole !== "south";
+  const lineColor = toRight ? "rgba(255,255,255,0.55)" : "rgba(169,196,214,0.30)";
+  const tip = toRight ? R : L;
+  el("line", { x1: tip[0] + (toRight ? 6 : -6), y1: cy, x2: toRight ? 1220 : 670, y2: cy, stroke: lineColor, "stroke-width": 1, "data-name": "Leader " + tag });
+  el("circle", { cx: tip[0], cy, r: 5, fill: toRight ? "#F79B09" : "#6F8BA3", "data-name": "Dot " + tag });
+
+  const div = document.createElement("div");
+  div.className = "label " + (pole === "south" ? "south" : "north");
+  div.style.top = cy + "px";
+  div.dataset.block = pole === "south" ? `South ${lv.n}` : pole === "north" ? `North ${lv.n}` : `Level ${lv.n}`;
+  div.innerHTML = pole === "south"
+    ? `<div class="head"><span class="name">${lv.name}</span><span class="code">${lv.code}</span><span class="num">${lv.n}</span></div>`
+    : `<div class="head"><span class="num">${lv.n}</span><span class="name">${lv.name}</span><span class="code">${lv.code}</span></div><p>${lv.text}</p>`;
+  document.getElementById("labels").appendChild(div);
+});
+</script>
+</body>
+</html>

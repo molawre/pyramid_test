@@ -1,5 +1,6 @@
-// Loads brand/five-levels.html (navy theme) and dumps every shape and text run
-// with exact comp coordinates, so the AE script can rebuild the layout 1:1.
+// Loads a brand slide (brand/five-levels.html in the navy theme, or any slide that tags its
+// parts with data-name / data-block) and dumps every shape, text run and glow with exact
+// comp coordinates, so the AE script can rebuild the layout 1:1.
 const { chromium } = require('playwright');
 const fs = require('fs');
 
@@ -7,7 +8,7 @@ const fs = require('fs');
   const [htmlPath, outPath] = process.argv.slice(2);
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
-  await p.goto('file://' + htmlPath + '?theme=navy');
+  await p.goto('file://' + htmlPath + (process.argv[4] || '?theme=navy'));
   await p.evaluate(() => document.fonts.ready);
   await p.waitForTimeout(400);
 
@@ -90,7 +91,7 @@ const fs = require('fs');
       const t = n.tagName;
       if (t === 'defs') continue;
       if (t === 'g') {
-        const name = plateNames[plateIdx++];
+        const name = n.dataset.name ? null : plateNames[plateIdx++];
         const kids = [...n.children];
         const faces = [];
         const gridLines = [];
@@ -98,24 +99,25 @@ const fs = require('fs');
         const hasSides = kids.filter(k => k.tagName === 'polygon').length === 3;
         for (const k of kids) {
           if (k.tagName === 'polygon') {
-            const faceName = hasSides ? ['Left side', 'Right side', 'Top face'][polyIdx++] : 'Top face';
+            const faceName = k.dataset.name || (hasSides ? ['Left side', 'Right side', 'Top face'][polyIdx++] : 'Top face');
             faces.push(item(k, faceName));
           } else if (k.tagName === 'line') {
             gridLines.push(item(k, 'Grid line'));
           }
         }
-        shapes.push({ type: 'plate', name: 'Plate ' + name, faces, gridLines });
+        shapes.push({ type: 'plate', name: n.dataset.name || ('Plate ' + name), faces, gridLines });
         continue;
       }
       if (t === 'text') {
         const run = textRun(n);
-        shapes.push({ type: 'text', name: 'Label ' + run.text, runs: [run] });
+        shapes.push({ type: 'text', name: n.dataset.name || ('Label ' + run.text), runs: [run] });
         continue;
       }
       // Name loose shapes by what they are
-      let name;
+      let name = n.dataset.name;
       const g = geom(n);
-      if (t === 'line' && g.points[0][1] === 270) name = 'Grid ' + String(++gridIdx).padStart(2, '0');
+      if (name) {}
+      else if (t === 'line' && g.points[0][1] === 270) name = 'Grid ' + String(++gridIdx).padStart(2, '0');
       else if (t === 'ellipse') name = 'Stack shadow';
       else if (t === 'line' && g.points[0][0] === g.points[1][0]) name = 'Axis line';
       else if (t === 'path' && !g.closed && g.points.length === 3 && g.points[0][1] === g.points[2][1] && g.points[0][0] < g.points[2][0]) name = 'Axis arrowhead';
@@ -162,7 +164,8 @@ const fs = require('fs');
       return { el, cs, txt, lines };
     };
 
-    const htmlEls = [
+    const tagged = [...document.querySelectorAll('[data-block]')];
+    const htmlEls = tagged.length ? tagged.map(e => [e.dataset.block, e]) : [
       ['Eyebrow', document.querySelector('.eyebrow')],
       ['Headline', document.querySelector('h1')],
       ...[...document.querySelectorAll('.label')].map((l, i) => [`Level ${l.querySelector('.num').textContent}`, l]),
@@ -225,7 +228,9 @@ const fs = require('fs');
       stroke: (() => { const c = parseColor(fcs.borderTopColor); return { rgb: c.rgb, opacity: c.a, width: num(fcs.borderTopWidth) }; })(),
     };
 
-    return { width: 1920, height: 1080, shapes, html: results, footerRule: rule };
+    const glows = (window.GLOWS || []).map(g => ({ name: g.name, color: g.color.map(v => v / 255), alpha: g.alpha, center: g.center, radius: g.radius }));
+    const bg = parseColor(getComputedStyle(document.body).backgroundColor).rgb;
+    return { width: 1920, height: 1080, compName: document.title, bg, glows, shapes, html: results, footerRule: rule };
   });
 
   fs.writeFileSync(outPath, JSON.stringify(data, null, 1));

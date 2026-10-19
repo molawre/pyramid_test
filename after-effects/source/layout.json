@@ -1,6 +1,13 @@
 {
  "width": 1920,
  "height": 1080,
+ "compName": "The 5 levels of healing — system model",
+ "bg": [
+  0.00784313725490196,
+  0.2196078431372549,
+  0.4
+ ],
+ "glows": [],
  "shapes": [
   {
    "type": "shape",

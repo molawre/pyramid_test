@@ -7,7 +7,7 @@ from fontTools.varLib import instancer
 src_dir, out_dir = sys.argv[1], sys.argv[2]
 WEIGHTS = {300: 'Light', 400: 'Regular', 500: 'Medium', 700: 'Bold'}
 JOBS = [
-    ('dmsans.ttf', 'DM Sans', 'DMSans', [(13, 500), (14, 500), (15, 500), (18, 400), (18, 500), (26, 700)]),
+    ('dmsans.ttf', 'DM Sans', 'DMSans', [(13, 500), (14, 500), (15, 500), (18, 400), (18, 500), (22, 500), (26, 700)]),
     ('newsreader.ttf', 'Newsreader', 'Newsreader', [(72, 300), (72, 400)]),
 ]
 for fname, fam, ps_base, combos in JOBS:
